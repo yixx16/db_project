@@ -84,15 +84,8 @@ Luego abre en el navegador:
 | Iniciar sesión | http://localhost:8000/public/login/login.php |
 | Panel (tras login) | http://localhost:8000/public/crud/modificaciones.php |
 
-### Usuario de prueba (semilla)
 
-```
-correo:     jesusdel1611@gmail.com
-contraseña: Admin#2026
-rol:        admin
-```
 
-> ⚠️ Cámbialo antes de cualquier despliegue real.
 
 ---
 
