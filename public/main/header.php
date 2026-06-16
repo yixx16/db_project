@@ -9,6 +9,7 @@
         <a href="../main/index.php" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 mr-4">
             <i class="fas fa-home"></i> Inicio
         </a>
-        <img src="../media/min.jpg" alt="Ministerio de Educación Logo" width="200" height="80">
+        <!-- [UI] alt presente (descriptivo). loading/decoding optimizan la carga sin alterar el diseno. Partial reutilizable: sin <html>/<head>. -->
+        <img src="../media/min.jpg" alt="Ministerio de Educación Logo" width="200" height="80" loading="lazy" decoding="async">
     </div>
 </div>
