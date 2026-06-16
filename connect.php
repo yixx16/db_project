@@ -1,19 +1,32 @@
 <?php
-// Archivo de conexion a la base de datos
+// Archivo de conexion a la base de datos.
+// Las credenciales se leen de variables de entorno (.env) via includes/config.php.
 
 require_once __DIR__ . '/includes/config.php';
 
 /**
- * Conectar a la base de datos.
+ * Construye el DSN de PDO a partir de las variables de entorno.
  *
- * @param string $username El nombre de usuario.
- * @param string $password La contrasena del usuario.
- * @return PDO La conexion a la base de datos.
+ * @return string
+ */
+function dbDsn() {
+    $dsn = 'pgsql:host=' . DB_HOST . ';port=' . DB_PORT . ';dbname=' . DB_NAME;
+    if (DB_SSLMODE !== '') {
+        $dsn .= ';sslmode=' . DB_SSLMODE;
+    }
+    return $dsn;
+}
+
+/**
+ * Conectar a la base de datos con un usuario y contrasena dados.
+ *
+ * @param string $username
+ * @param string $password
+ * @return PDO
  */
 function connect($username, $password) {
     try {
-        $dsn = "pgsql:host=" . DB_HOST . ";dbname=" . DB_NAME;
-        $conn = new PDO($dsn, $username, $password);
+        $conn = new PDO(dbDsn(), $username, $password);
         $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         return $conn;
     } catch (PDOException $e) {
@@ -28,38 +41,34 @@ function connect($username, $password) {
 }
 
 /**
- * Conectar a la base de datos como usuario por defecto.
+ * Conexion por defecto de la aplicacion (credenciales DB_USER/DB_PASS de .env).
  *
- * @return PDO La conexion a la base de datos.
+ * @return PDO
  */
 function connectDefault() {
-    return connect(DB_DEFAULT_USER, DB_DEFAULT_PASS);
+    return connect(DB_USER, DB_PASS);
 }
 
 /**
- * Conectar a la base de datos con usuario y contrasena especificos.
- * Verifica las credenciales contra privado.usuarios usando una consulta
- * preparada (parametrizada) para evitar inyeccion SQL.
+ * Verifica las credenciales de un usuario de la aplicacion contra
+ * privado.usuarios (con sentencia preparada) y devuelve la conexion por
+ * defecto si son validas.
  *
- * @param string $username El nombre de usuario (correo).
- * @param string $password La contrasena del usuario.
- * @return PDO La conexion a la base de datos.
+ * @param string $username Correo del usuario.
+ * @param string $password Contrasena en texto plano.
+ * @return PDO
  */
 function connectWithCredentials($username, $password) {
-    $conn = connect(DB_ADMIN_USER, DB_ADMIN_PASS);
-    $stmt = $conn->prepare("SELECT password FROM privado.usuarios WHERE correo_usuario = :correo");
+    $conn = connectDefault();
+    $stmt = $conn->prepare('SELECT password FROM privado.usuarios WHERE correo_usuario = :correo');
     $stmt->bindParam(':correo', $username, PDO::PARAM_STR);
     $stmt->execute();
-    $hashed_password_db = $stmt->fetchColumn();
-    $conn = null;
-    if ($hashed_password_db !== false && password_verify($password, $hashed_password_db)) {
-        $dbpassword = $hashed_password_db;
-        return connect($username, $dbpassword);
-    } else {
-        echo "Contrasena incorrecta";
-        exit();
+    $hash = $stmt->fetchColumn();
+    if ($hash !== false && password_verify($password, $hash)) {
+        return $conn;
     }
+    echo 'Contrasena incorrecta';
+    exit();
 }
-
 
 $conn = connectDefault();

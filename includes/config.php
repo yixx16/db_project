@@ -75,13 +75,15 @@ if (!defined('APP_CONFIG_LOADED')) {
         error_reporting(E_ALL);
     }
 
-    // Constantes de base de datos (con fallback a los valores actuales del proyecto).
+    // Constantes de base de datos (leidas de .env; el fallback es solo para
+    // desarrollo local sin .env). En Supabase: host del pooler, dbname=postgres,
+    // user 'postgres.<project-ref>' y sslmode=require.
     define('DB_HOST', env_value('DB_HOST', 'localhost'));
-    define('DB_NAME', env_value('DB_NAME', 'institucionesv2'));
-    define('DB_DEFAULT_USER', env_value('DB_DEFAULT_USER', 'api'));
-    define('DB_DEFAULT_PASS', env_value('DB_DEFAULT_PASS', 'apipassword'));
-    define('DB_ADMIN_USER', env_value('DB_ADMIN_USER', 'postgres'));
-    define('DB_ADMIN_PASS', env_value('DB_ADMIN_PASS', 'postgres'));
+    define('DB_PORT', (int) env_value('DB_PORT', 5432));
+    define('DB_NAME', env_value('DB_NAME', 'postgres'));
+    define('DB_USER', env_value('DB_USER', 'postgres'));
+    define('DB_PASS', env_value('DB_PASS', ''));
+    define('DB_SSLMODE', env_value('DB_SSLMODE', 'prefer'));
 
     // URL base opcional.
     $baseUrl = env_value('BASE_URL', null);
