@@ -1,20 +1,15 @@
 <?php
-// Iniciar la sesión al comienzo del archivo
-session_start();
-?>
+// [MOD] Bootstrap unico como PRIMERA instruccion, antes de cualquier salida HTML.
+require_once __DIR__ . '/../../includes/bootstrap.php';
 
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registro</title>
-    <script src="../media/style.js"></script>
-    <link rel="stylesheet" href="../media/style.css">
-</head>
-<body class="bg-gray-100">
-<?php 
+// Recupera el mensaje de error de registro (y lo limpia tras leerlo).
+$mensaje_error2 = isset($_SESSION['mensaje_error2']) ? $_SESSION['mensaje_error2'] : null;
+unset($_SESSION['mensaje_error2']);
 
+// [MOD][UI] Cabecera unificada via render_head() (assets locales consistentes).
+render_head('Registro');
+
+// [MOD] Header compartido.
 include_once "../main/header.php";
 ?>
     <div class="container mx-auto mt-10">
@@ -22,32 +17,33 @@ include_once "../main/header.php";
             <h2 class="text-2xl">Registro de Usuario</h2>
 
             <?php
-                // Mostrar mensaje de error si existe y luego eliminarlo
-                if (isset($_SESSION['mensaje_error2'])) {
-                    echo "<p class='text-red-500'>" . $_SESSION['mensaje_error2'] . "</p>";
-                    unset($_SESSION['mensaje_error2']); // Eliminar el mensaje después de mostrarlo
+                // [SEG][UI] Mensaje de error escapado con e().
+                if ($mensaje_error2 !== null) {
+                    echo "<p class='text-red-500'>" . e($mensaje_error2) . "</p>";
                 }
             ?>
         </div>
 
         <div class="mt-4">
         <form action="procesar_registro.php" method="POST" class="bg-white p-6 rounded shadow-md">
+            <?php csrf_field(); // [SEG] Token CSRF. ?>
             <div class="mb-4">
                 <label for="username" class="block text-gray-700">Nombre Completo:</label>
                 <input type="text" id="username" name="username" required class="mt-1 block w-full p-2 border border-gray-300 rounded">
             </div>
             <div class="mb-4">
-                <label for="email" class="block text-gray-700">Correo Electrónico:</label>
+                <label for="email" class="block text-gray-700">Correo Electronico:</label>
                 <input type="email" id="email" name="email" required class="mt-1 block w-full p-2 border border-gray-300 rounded">
             </div>
             <div class="mb-4">
-                 <label for="password" class="block text-gray-700">Contraseña:</label>
-                 <input type="password" id="password" name="password" required class="mt-1 block w-full p-2 border border-gray-300 rounded">
+                 <label for="password" class="block text-gray-700">Contrasena:</label>
+                 <input type="password" id="password" name="password" required minlength="8" class="mt-1 block w-full p-2 border border-gray-300 rounded">
             </div>
             <button type="submit" class="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600">Registrar</button>
         </form>
 
         </div>
     </div>
-</body>
-</html>
+<?php
+// [MOD][UI] Pie unificado via render_footer().
+render_footer();
